@@ -6,6 +6,6 @@
     "refreshInterval": 30
   },
   "slides": [
-    { "src": "slides/poetry.html", "type": "html", "duration": null }
+    { "src": "slides/poetry.html", "type": "html", "duration": 86400 }
   ]
 }
