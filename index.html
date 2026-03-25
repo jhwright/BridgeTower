@@ -42,7 +42,7 @@ html, body {
 </div>
 
 <script>
-const CYCLE_MS = 4000;
+const CYCLE_MS = 6000;
 const FADE_MS = 600;
 const MAX_FONT = 52;
 const MIN_FONT = 20;
@@ -135,9 +135,77 @@ const poems = [
 
   // Kaufman — Would You Wear My Eyes (1960)
   { text: "would you wear my eyes", attr: "— Kaufman" },
+
+  // Tupac — Changes (1998)
+  { text: "I see no changes\nall I see is racist faces", attr: "— Tupac, Changes" },
+  { text: "we gotta make a change\nit's time for us as a people to start making some changes", attr: "— Tupac, Changes" },
+  { text: "I got love for my brother\nbut we can never go nowhere\nunless we share with each other", attr: "— Tupac, Changes" },
+
+  // Tupac — Me Against the World
+  { text: "the world ain't all good\nbut it ain't all bad", attr: "— Tupac" },
+
+  // Kendrick Lamar — Alright (2015)
+  { text: "we gon' be alright", attr: "— Kendrick Lamar, Alright" },
+
+  // Kendrick Lamar — HUMBLE (2017)
+  { text: "sit down\nbe humble", attr: "— Kendrick Lamar, HUMBLE" },
+
+  // Kendrick Lamar — untitled 02
+  { text: "pigeon don't have to be a rat\nthe streets don't fail me now", attr: "— Kendrick Lamar" },
+
+  // Kendrick Lamar — The Heart Part 5
+  { text: "I am all of us", attr: "— Kendrick Lamar" },
+
+  // Nas — N.Y. State of Mind (1994)
+  { text: "I never sleep\ncause sleep is the cousin of death", attr: "— Nas, N.Y. State of Mind" },
+
+  // Nas — The World Is Yours
+  { text: "the world is yours", attr: "— Nas" },
+  { text: "whose world is this\nthe world is yours", attr: "— Nas" },
+
+  // Immortal Technique — Dance with the Devil
+  { text: "you don't have to find a reason\nto let your voice be heard", attr: "— Immortal Technique" },
+
+  // Dead Prez — Hip Hop (2000)
+  { text: "it's bigger than hip hop", attr: "— Dead Prez" },
+
+  // Killer Mike — Reagan (2012)
+  { text: "the devil crept into Heaven\nGod turned his back and slept", attr: "— Killer Mike, Reagan" },
+
+  // Run the Jewels — Close Your Eyes (2014)
+  { text: "look at all these slave masters\nposing on your dollar", attr: "— Run the Jewels" },
+
+  // Lauryn Hill — Everything Is Everything (1998)
+  { text: "everything is everything\nwhat is meant to be will be", attr: "— Lauryn Hill" },
+  { text: "after winter must come spring\nchange it comes eventually", attr: "— Lauryn Hill" },
+
+  // Mos Def — Mathematics (1999)
+  { text: "it's simple mathematics\ncheck the status", attr: "— Mos Def, Mathematics" },
+
+  // Rage Against the Machine — Killing in the Name (1992)
+  { text: "some of those that work forces\nare the same that burn crosses", attr: "— RATM" },
+
+  // Public Enemy — Fight the Power (1989)
+  { text: "fight the power", attr: "— Public Enemy" },
+  { text: "our freedom of speech\nis freedom or death", attr: "— Public Enemy" },
+
+  // Lupe Fiasco — Words I Never Said
+  { text: "I really think the war on terror\nis a bunch of bullshit", attr: "— Lupe Fiasco" },
+
+  // Joey Bada$$ — Land of the Free (2017)
+  { text: "sorry America\nbut I will not be your soldier", attr: "— Joey Bada$$" },
+
+  // J. Cole — Be Free (2014)
+  { text: "all we want to do is be free", attr: "— J. Cole, Be Free" },
+
+  // Noname — Song 33 (2020)
+  { text: "I saw a protest at the Wendy's\nand they yelled out freedom", attr: "— Noname" },
 ];
 
+const MANTRA = { text: "NO KINGS.  NO ICE.  NO WAR.", attr: "" };
+
 let index = 0;
+let showMantra = false;
 const poemEl = document.getElementById('poem');
 const linesEl = document.getElementById('lines');
 const attrEl = document.getElementById('attr');
@@ -173,7 +241,7 @@ function fitText(text) {
 }
 
 function showVerse() {
-  const verse = poems[index % poems.length];
+  const verse = showMantra ? MANTRA : poems[index % poems.length];
   const parts = verse.text.split('\n');
   const fontSize = fitText(verse.text);
 
@@ -186,7 +254,12 @@ function showVerse() {
 function cycle() {
   poemEl.classList.add('fade-out');
   setTimeout(() => {
-    index++;
+    if (showMantra) {
+      showMantra = false;
+      index++;
+    } else {
+      showMantra = true;
+    }
     showVerse();
   }, FADE_MS);
 }
