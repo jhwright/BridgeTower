@@ -2,27 +2,27 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=768, height=192, initial-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 <title>Tower Sign</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html, body {
-  width: 768px;
-  height: 192px;
+  width: 100vw;
+  height: 100vh;
   overflow: hidden;
   background: #000;
 }
 #stage {
   position: relative;
-  width: 768px;
-  height: 192px;
+  width: 100vw;
+  height: 100vh;
   background: #000;
 }
 .slide-layer {
   position: absolute;
   top: 0; left: 0;
-  width: 768px;
-  height: 192px;
+  width: 100vw;
+  height: 100vh;
   opacity: 0;
   transition: opacity 1s ease-in-out;
   background: #000;
@@ -31,20 +31,20 @@ html, body {
   opacity: 1;
 }
 .slide-layer img {
-  width: 768px;
-  height: 192px;
+  width: 100vw;
+  height: 100vh;
   object-fit: cover;
   display: block;
 }
 .slide-layer video {
-  width: 768px;
-  height: 192px;
+  width: 100vw;
+  height: 100vh;
   object-fit: cover;
   display: block;
 }
 .slide-layer iframe {
-  width: 768px;
-  height: 192px;
+  width: 100vw;
+  height: 100vh;
   border: none;
   display: block;
 }
