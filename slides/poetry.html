@@ -11,119 +11,180 @@ body {
 }
 #poem {
   text-align: center;
-  padding: 0 40px;
+  width: 100vw;
+  padding: 0 24px;
   opacity: 1;
   transition: opacity 0.6s ease-in-out;
 }
 #poem.fade-out { opacity: 0; }
-.line {
-  font-size: 42px;
+#lines {
   font-weight: 400;
-  line-height: 1.3;
+  line-height: 1.25;
   letter-spacing: 1px;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 .attribution {
   font-size: 16px;
   opacity: 0.4;
   font-style: italic;
-  margin-top: 6px;
+  margin-top: 4px;
   text-transform: none;
 }
 </style>
 </head>
 <body>
 <div id="poem">
-  <div class="line" id="line1"></div>
-  <div class="line" id="line2"></div>
+  <div id="lines"></div>
   <div class="attribution" id="attr"></div>
 </div>
 
 <script>
 const CYCLE_MS = 4000;
 const FADE_MS = 600;
+const MAX_FONT = 52;
+const MIN_FONT = 20;
+const PAD = 48; // total horizontal padding
 
 const poems = [
   // Allen Ginsberg — Howl (1955)
-  { lines: ["I saw the best minds", "of my generation destroyed"], attr: "— Ginsberg, Howl" },
-  { lines: ["destroyed by madness", "starving hysterical naked"], attr: "— Ginsberg, Howl" },
-  { lines: ["dragging themselves through", "the negro streets at dawn"], attr: "— Ginsberg, Howl" },
-  { lines: ["looking for an", "angry fix"], attr: "— Ginsberg, Howl" },
-  { lines: ["angelheaded hipsters burning", "for the ancient heavenly connection"], attr: "— Ginsberg, Howl" },
-  { lines: ["who poverty and tatters and", "hollow-eyed and high sat up"], attr: "— Ginsberg, Howl" },
-  { lines: ["the starry dynamo in", "the machinery of night"], attr: "— Ginsberg, Howl" },
-
-  // Lawrence Ferlinghetti — I Am Waiting (1958)
-  { lines: ["I am waiting for my case", "to come up"], attr: "— Ferlinghetti, I Am Waiting" },
-  { lines: ["I am waiting for a rebirth", "of wonder"], attr: "— Ferlinghetti, I Am Waiting" },
-  { lines: ["I am perpetually awaiting", "a rebirth of wonder"], attr: "— Ferlinghetti, I Am Waiting" },
-  { lines: ["I am waiting for the war", "to be fought"], attr: "— Ferlinghetti, I Am Waiting" },
-  { lines: ["which will make", "the world safe for anarchy"], attr: "— Ferlinghetti, I Am Waiting" },
-  { lines: ["I am waiting for the", "discovery of a new symbolic"], attr: "— Ferlinghetti, I Am Waiting" },
-  { lines: ["western frontier", ""], attr: "— Ferlinghetti, I Am Waiting" },
-
-  // Lawrence Ferlinghetti — A Coney Island of the Mind (1958)
-  { lines: ["the world is a beautiful", "place to be born into"], attr: "— Ferlinghetti, Coney Island" },
-  { lines: ["if you don't mind", "some people dying all the time"], attr: "— Ferlinghetti, Coney Island" },
-  { lines: ["or maybe only starving", "some of the time"], attr: "— Ferlinghetti, Coney Island" },
-  { lines: ["which isn't half so bad", "if it isn't you"], attr: "— Ferlinghetti, Coney Island" },
+  { text: "I saw the best minds of my generation destroyed", attr: "— Ginsberg, Howl" },
+  { text: "destroyed by madness\nstarving hysterical naked", attr: "— Ginsberg, Howl" },
+  { text: "dragging themselves through\nthe negro streets at dawn", attr: "— Ginsberg, Howl" },
+  { text: "looking for an angry fix", attr: "— Ginsberg, Howl" },
+  { text: "angelheaded hipsters burning\nfor the ancient heavenly connection", attr: "— Ginsberg, Howl" },
+  { text: "hollow-eyed and high\nsat up smoking", attr: "— Ginsberg, Howl" },
+  { text: "the starry dynamo\nin the machinery of night", attr: "— Ginsberg, Howl" },
+  { text: "who dreamt and made incarnate\ngaps in time & space", attr: "— Ginsberg, Howl" },
+  { text: "who were expelled from the academies\nfor crazy", attr: "— Ginsberg, Howl" },
+  { text: "who cowered in unshaven rooms\nin underwear", attr: "— Ginsberg, Howl" },
 
   // Allen Ginsberg — America (1956)
-  { lines: ["America I've given you all", "and now I'm nothing"], attr: "— Ginsberg, America" },
-  { lines: ["America two dollars and", "twenty-seven cents"], attr: "— Ginsberg, America" },
-  { lines: ["I can't stand my", "own mind"], attr: "— Ginsberg, America" },
-  { lines: ["America when will you", "be angelic"], attr: "— Ginsberg, America" },
-  { lines: ["when will you take off", "your clothes"], attr: "— Ginsberg, America" },
-  { lines: ["America when will you be", "worthy of your million Trotskyites"], attr: "— Ginsberg, America" },
-  { lines: ["America why are your", "libraries full of tears"], attr: "— Ginsberg, America" },
+  { text: "America I've given you all\nand now I'm nothing", attr: "— Ginsberg, America" },
+  { text: "I can't stand my own mind", attr: "— Ginsberg, America" },
+  { text: "America when will you be angelic", attr: "— Ginsberg, America" },
+  { text: "when will you take off your clothes", attr: "— Ginsberg, America" },
+  { text: "America why are your\nlibraries full of tears", attr: "— Ginsberg, America" },
+  { text: "America when will you\nsend your eggs to India", attr: "— Ginsberg, America" },
+  { text: "I'm addressing you\nare you going to let your emotional life\nbe run by Time Magazine", attr: "— Ginsberg, America" },
 
-  // Gregory Corso — Bomb (1958)
-  { lines: ["Budger of history", "brake of time"], attr: "— Corso, Bomb" },
-  { lines: ["you bomb", "toy of universe"], attr: "— Corso, Bomb" },
+  // Lawrence Ferlinghetti — I Am Waiting (1958)
+  { text: "I am perpetually awaiting\na rebirth of wonder", attr: "— Ferlinghetti, I Am Waiting" },
+  { text: "I am waiting for the war to be fought\nwhich will make the world safe for anarchy", attr: "— Ferlinghetti, I Am Waiting" },
+  { text: "I am waiting for the discovery\nof a new symbolic western frontier", attr: "— Ferlinghetti, I Am Waiting" },
+  { text: "I am waiting\nfor the Age of Anxiety to drop dead", attr: "— Ferlinghetti, I Am Waiting" },
 
-  // Gary Snyder — A Berry Feast (1957)
-  { lines: ["this poetry is the", "eagle of experience"], attr: "— Snyder" },
-
-  // Jack Kerouac — Mexico City Blues (1959)
-  { lines: ["I want to be considered", "a jazz poet"], attr: "— Kerouac, Mexico City Blues" },
-  { lines: ["blowing a long blues", "in an afternoon jam session"], attr: "— Kerouac, Mexico City Blues" },
-
-  // Diane di Prima — Revolutionary Letter #1 (1971)
-  { lines: ["I have just realized that", "the stakes are myself"], attr: "— di Prima, Revolutionary Letters" },
-  { lines: ["I have no other", "ransom money nothing to"], attr: "— di Prima, Revolutionary Letters" },
-  { lines: ["negotiate with", ""], attr: "— di Prima, Revolutionary Letters" },
-
-  // Amiri Baraka (LeRoi Jones) — Black Art (1965)
-  { lines: ["poems are bullshit", "unless they are teeth"], attr: "— Baraka, Black Art" },
-  { lines: ["we want poems that kill", "assassin poems"], attr: "— Baraka, Black Art" },
-
-  // Bob Kaufman — Jail Poems (1959)
-  { lines: ["I am sitting in a cell", "with a view of evil parallels"], attr: "— Kaufman, Jail Poems" },
-  { lines: ["writing poems on", "the wall of my mind"], attr: "— Kaufman, Jail Poems" },
+  // Ferlinghetti — A Coney Island of the Mind (1958)
+  { text: "the world is a beautiful place\nto be born into", attr: "— Ferlinghetti, Coney Island" },
+  { text: "if you don't mind\nsome people dying all the time", attr: "— Ferlinghetti, Coney Island" },
+  { text: "or maybe only starving\nsome of the time", attr: "— Ferlinghetti, Coney Island" },
+  { text: "which isn't half so bad\nif it isn't you", attr: "— Ferlinghetti, Coney Island" },
+  { text: "and not so far away\nsomebody is screaming", attr: "— Ferlinghetti, Coney Island" },
 
   // Ferlinghetti — Populist Manifesto (1975)
-  { lines: ["poets come out of", "your closets"], attr: "— Ferlinghetti, Populist Manifesto" },
-  { lines: ["open your windows", "open your doors"], attr: "— Ferlinghetti, Populist Manifesto" },
-  { lines: ["you have been hiding", "too long in the dark"], attr: "— Ferlinghetti, Populist Manifesto" },
-  { lines: ["the world is waiting", "for a new sign"], attr: "— Ferlinghetti, Populist Manifesto" },
+  { text: "poets come out of your closets", attr: "— Ferlinghetti, Populist Manifesto" },
+  { text: "open your windows\nopen your doors", attr: "— Ferlinghetti, Populist Manifesto" },
+  { text: "you have been hiding\ntoo long in the dark", attr: "— Ferlinghetti, Populist Manifesto" },
+  { text: "the world is waiting for a new sign", attr: "— Ferlinghetti, Populist Manifesto" },
+
+  // Diane di Prima — Revolutionary Letters (1971)
+  { text: "I have just realized that\nthe stakes are myself", attr: "— di Prima, Revolutionary Letters" },
+  { text: "I have no other ransom money\nnothing to negotiate with", attr: "— di Prima, Revolutionary Letters" },
+  { text: "the destruction of the state\nis the one ecstatic act of my life", attr: "— di Prima, Revolutionary Letters" },
+
+  // Amiri Baraka — Black Art (1965)
+  { text: "poems are bullshit\nunless they are teeth", attr: "— Baraka, Black Art" },
+  { text: "we want poems that kill\nassassin poems", attr: "— Baraka, Black Art" },
+  { text: "we want live words\nof the hip world", attr: "— Baraka, Black Art" },
+
+  // Bob Kaufman — Jail Poems (1959)
+  { text: "I am sitting in a cell\nwith a view of evil parallels", attr: "— Kaufman, Jail Poems" },
+  { text: "writing poems\non the wall of my mind", attr: "— Kaufman, Jail Poems" },
+  { text: "I sit here writing\nwaiting for myself", attr: "— Kaufman, Jail Poems" },
+
+  // Bob Kaufman — Abomunist Manifesto (1959)
+  { text: "abomunists do not write\nfor money they write\nfor things", attr: "— Kaufman, Abomunist Manifesto" },
+
+  // Gregory Corso — Bomb (1958)
+  { text: "budger of history\nbrake of time", attr: "— Corso, Bomb" },
+  { text: "you bomb\ntoy of universe", attr: "— Corso, Bomb" },
+
+  // Gregory Corso — Marriage (1960)
+  { text: "should I get married\nshould I be good", attr: "— Corso, Marriage" },
+
+  // Jack Kerouac — Mexico City Blues (1959)
+  { text: "I want to be considered a jazz poet", attr: "— Kerouac, Mexico City Blues" },
+  { text: "blowing a long blues\nin an afternoon jam session", attr: "— Kerouac, Mexico City Blues" },
+
+  // Jack Kerouac — The Scripture of the Golden Eternity
+  { text: "did I create that sky\nyes for I am the earth", attr: "— Kerouac, Golden Eternity" },
+
+  // Gary Snyder — Riprap (1959)
+  { text: "lay down these words\nbefore your mind like rocks", attr: "— Snyder, Riprap" },
+
+  // Gary Snyder — For the Children (1974)
+  { text: "stay together\nlearn the flowers\ngo light", attr: "— Snyder, For the Children" },
+
+  // Michael McClure — Poisoned Wheat (1965)
+  { text: "we are locked in our rooms\nand we must break out", attr: "— McClure" },
+
+  // Leroi Jones / Baraka — Preface to a Twenty Volume Suicide Note
+  { text: "lately I've become accustomed\nto the way the ground opens up", attr: "— Baraka, Suicide Note" },
+
+  // Kaufman — Would You Wear My Eyes (1960)
+  { text: "would you wear my eyes", attr: "— Kaufman" },
 ];
 
 let index = 0;
 const poemEl = document.getElementById('poem');
-const line1 = document.getElementById('line1');
-const line2 = document.getElementById('line2');
-const attr = document.getElementById('attr');
+const linesEl = document.getElementById('lines');
+const attrEl = document.getElementById('attr');
+
+// Measure text width at a given font size using a hidden canvas
+const canvas = document.createElement('canvas');
+const ctx = canvas.getContext('2d');
+
+function measureWidth(text, fontSize) {
+  ctx.font = fontSize + 'px Georgia, Times New Roman, serif';
+  return ctx.measureText(text).width;
+}
+
+function fitText(text) {
+  const parts = text.split('\n');
+  const maxW = window.innerWidth - PAD;
+
+  // Find the longest line
+  let bestSize = MAX_FONT;
+  for (const part of parts) {
+    let sz = MAX_FONT;
+    while (sz > MIN_FONT && measureWidth(part.toUpperCase(), sz) > maxW) {
+      sz -= 1;
+    }
+    bestSize = Math.min(bestSize, sz);
+  }
+
+  // If two lines, ensure they fit vertically too (lines + attribution)
+  const availH = window.innerHeight - 28; // leave room for attribution
+  const neededH = parts.length * (bestSize * 1.25);
+  if (neededH > availH) {
+    bestSize = Math.floor(availH / (parts.length * 1.25));
+  }
+
+  return Math.max(MIN_FONT, bestSize);
+}
 
 function showVerse() {
   const verse = poems[index % poems.length];
-  line1.textContent = verse.lines[0];
-  line2.textContent = verse.lines[1];
-  attr.textContent = verse.attr;
+  const parts = verse.text.split('\n');
+  const fontSize = fitText(verse.text);
+
+  linesEl.style.fontSize = fontSize + 'px';
+  linesEl.innerHTML = parts.map(p => '<div>' + p + '</div>').join('');
+  attrEl.textContent = verse.attr;
   poemEl.classList.remove('fade-out');
 }
 
 function cycle() {
-  // Fade out
   poemEl.classList.add('fade-out');
   setTimeout(() => {
     index++;
