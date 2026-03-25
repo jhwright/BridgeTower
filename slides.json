@@ -1,20 +1,11 @@
 {
   "settings": {
-    "defaultDuration": 10,
+    "defaultDuration": 4,
     "transition": "fade",
-    "transitionDuration": 1000,
+    "transitionDuration": 800,
     "refreshInterval": 30
   },
   "slides": [
-    {
-      "src": "slides/test-slide-1.html",
-      "type": "html",
-      "duration": 8
-    },
-    {
-      "src": "slides/test-slide-2.html",
-      "type": "html",
-      "duration": 8
-    }
+    { "src": "slides/poetry.html", "type": "html", "duration": null }
   ]
 }
