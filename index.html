@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=768, height=192, initial-scale=1, user-scalable=no">
+<title>Tower Sign</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body {
+  width: 768px;
+  height: 192px;
+  overflow: hidden;
+  background: #000;
+}
+#stage {
+  position: relative;
+  width: 768px;
+  height: 192px;
+  background: #000;
+}
+.slide-layer {
+  position: absolute;
+  top: 0; left: 0;
+  width: 768px;
+  height: 192px;
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
+  background: #000;
+}
+.slide-layer.active {
+  opacity: 1;
+}
+.slide-layer img {
+  width: 768px;
+  height: 192px;
+  object-fit: cover;
+  display: block;
+}
+.slide-layer video {
+  width: 768px;
+  height: 192px;
+  object-fit: cover;
+  display: block;
+}
+.slide-layer iframe {
+  width: 768px;
+  height: 192px;
+  border: none;
+  display: block;
+}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="layer-a" class="slide-layer active"></div>
+  <div id="layer-b" class="slide-layer"></div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  const MANIFEST_URL = 'slides.json';
+  let slides = [];
+  let settings = { defaultDuration: 10, transition: 'fade', transitionDuration: 1000, refreshInterval: 30 };
+  let currentIndex = 0;
+  let lastManifestJSON = '';
+  let slideTimer = null;
+
+  const layerA = document.getElementById('layer-a');
+  const layerB = document.getElementById('layer-b');
+  let activeLayer = layerA;
+  let inactiveLayer = layerB;
+
+  // Load the manifest
+  async function loadManifest() {
+    try {
+      const cacheBust = '?v=' + Date.now();
+      const resp = await fetch(MANIFEST_URL + cacheBust);
+      if (!resp.ok) return false;
+      const text = await resp.text();
+      if (text === lastManifestJSON) return false;
+      lastManifestJSON = text;
+      const data = JSON.parse(text);
+      if (data.settings) {
+        settings = { ...settings, ...data.settings };
+        // Update transition duration CSS
+        layerA.style.transitionDuration = settings.transitionDuration + 'ms';
+        layerB.style.transitionDuration = settings.transitionDuration + 'ms';
+      }
+      if (data.slides && data.slides.length > 0) {
+        slides = data.slides;
+        return true;
+      }
+    } catch (e) {
+      console.error('Manifest load error:', e);
+    }
+    return false;
+  }
+
+  // Render a slide into a layer
+  function renderSlide(layer, slide) {
+    layer.innerHTML = '';
+    const type = slide.type || guessType(slide.src);
+
+    if (type === 'image') {
+      const img = document.createElement('img');
+      img.src = slide.src + '?v=' + Date.now();
+      img.alt = '';
+      layer.appendChild(img);
+    } else if (type === 'video') {
+      const video = document.createElement('video');
+      video.src = slide.src;
+      video.autoplay = true;
+      video.muted = true;
+      video.loop = false;
+      video.playsInline = true;
+      video.setAttribute('playsinline', '');
+      layer.appendChild(video);
+
+      // If no explicit duration, advance when video ends
+      if (!slide.duration) {
+        video.addEventListener('ended', () => {
+          advanceSlide();
+        }, { once: true });
+      }
+    } else if (type === 'html') {
+      const iframe = document.createElement('iframe');
+      iframe.src = slide.src + '?v=' + Date.now();
+      iframe.scrolling = 'no';
+      layer.appendChild(iframe);
+    }
+  }
+
+  function guessType(src) {
+    const ext = src.split('.').pop().toLowerCase().split('?')[0];
+    if (['mp4', 'webm', 'ogg'].includes(ext)) return 'video';
+    if (['html', 'htm'].includes(ext)) return 'html';
+    return 'image';
+  }
+
+  // Crossfade to the next slide
+  function showSlide(index) {
+    if (slides.length === 0) return;
+    currentIndex = index % slides.length;
+    const slide = slides[currentIndex];
+
+    // Render into the inactive layer
+    renderSlide(inactiveLayer, slide);
+
+    // Crossfade
+    activeLayer.classList.remove('active');
+    inactiveLayer.classList.add('active');
+
+    // Swap layer references
+    const tmp = activeLayer;
+    activeLayer = inactiveLayer;
+    inactiveLayer = tmp;
+
+    // Schedule next slide
+    scheduleNext(slide);
+  }
+
+  function scheduleNext(slide) {
+    if (slideTimer) clearTimeout(slideTimer);
+
+    const duration = slide.duration || settings.defaultDuration;
+    // For videos without explicit duration, the 'ended' event handles advancement
+    if (slide.type === 'video' && !slide.duration) return;
+
+    slideTimer = setTimeout(() => {
+      advanceSlide();
+    }, duration * 1000);
+  }
+
+  function advanceSlide() {
+    if (slideTimer) clearTimeout(slideTimer);
+    showSlide(currentIndex + 1);
+  }
+
+  // Poll for manifest changes
+  function startPolling() {
+    setInterval(async () => {
+      const changed = await loadManifest();
+      if (changed) {
+        // Manifest changed -- restart from current index (or 0 if slides removed)
+        if (currentIndex >= slides.length) currentIndex = 0;
+        showSlide(currentIndex);
+      }
+    }, settings.refreshInterval * 1000);
+  }
+
+  // Boot
+  async function init() {
+    await loadManifest();
+    if (slides.length > 0) {
+      showSlide(0);
+    }
+    startPolling();
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>

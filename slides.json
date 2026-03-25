@@ -1,0 +1,20 @@
+{
+  "settings": {
+    "defaultDuration": 10,
+    "transition": "fade",
+    "transitionDuration": 1000,
+    "refreshInterval": 30
+  },
+  "slides": [
+    {
+      "src": "slides/test-slide-1.html",
+      "type": "html",
+      "duration": 8
+    },
+    {
+      "src": "slides/test-slide-2.html",
+      "type": "html",
+      "duration": 8
+    }
+  ]
+}
