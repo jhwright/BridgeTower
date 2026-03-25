@@ -67,7 +67,7 @@ const poems = [
   { text: "when will you take off your clothes", attr: "— Ginsberg, America" },
   { text: "America why are your\nlibraries full of tears", attr: "— Ginsberg, America" },
   { text: "America when will you\nsend your eggs to India", attr: "— Ginsberg, America" },
-  { text: "I'm addressing you\nare you going to let your emotional life\nbe run by Time Magazine", attr: "— Ginsberg, America" },
+  { text: "I'm addressing you\nare you going to let your emotional life\nbe run by Instagram", attr: "— Ginsberg, America" },
 
   // Lawrence Ferlinghetti — I Am Waiting (1958)
   { text: "I am perpetually awaiting\na rebirth of wonder", attr: "— Ferlinghetti, I Am Waiting" },
@@ -134,6 +134,34 @@ const poems = [
 
   // Kaufman — Would You Wear My Eyes (1960)
   { text: "would you wear my eyes", attr: "— Kaufman" },
+
+  // Ginsberg — Sunflower Sutra (1955)
+  { text: "we're not our skin of grime\nwe're golden sunflowers inside", attr: "— Ginsberg, Sunflower Sutra" },
+  { text: "poor dead flower\nwhen did you forget you were a flower", attr: "— Ginsberg, Sunflower Sutra" },
+
+  // Ginsberg — Wichita Vortex Sutra (1966)
+  { text: "I here declare\nthe end of the war", attr: "— Ginsberg, Wichita Vortex Sutra" },
+
+  // Ferlinghetti — Dog (1958)
+  { text: "the dog trots freely in the street\nand sees reality", attr: "— Ferlinghetti, Dog" },
+
+  // Ferlinghetti — Pity the Nation (2007)
+  { text: "pity the nation whose people\nare sheep", attr: "— Ferlinghetti, Pity the Nation" },
+  { text: "pity the nation whose leaders\nare liars", attr: "— Ferlinghetti, Pity the Nation" },
+  { text: "pity the nation that raises not\nits voice except to praise conquerors", attr: "— Ferlinghetti, Pity the Nation" },
+
+  // di Prima — Rant (1971)
+  { text: "you cannot write a single line\nw/out a cosmology", attr: "— di Prima, Rant" },
+  { text: "the only war that matters\nis the war against the imagination", attr: "— di Prima, Rant" },
+
+  // Corso — I Am 25 (1958)
+  { text: "with a survey of the world\nin my hand", attr: "— Corso" },
+
+  // Anne Waldman — Fast Speaking Woman (1975)
+  { text: "I'm the fast speaking woman\nI'm the woman with wings", attr: "— Waldman, Fast Speaking Woman" },
+
+  // Kaufman — I Have Folded My Sorrows
+  { text: "I have folded my sorrows\ninto the mantle of summer night", attr: "— Kaufman" },
 
   // Tupac — Changes (1998)
   { text: "I see no changes\nall I see is racist faces", attr: "— Tupac, Changes" },
@@ -261,6 +289,12 @@ function cycle() {
     }
     showVerse();
   }, FADE_MS);
+}
+
+// Shuffle poems so beat and hip-hop intermix
+for (let i = poems.length - 1; i > 0; i--) {
+  const j = Math.floor(Math.random() * (i + 1));
+  [poems[i], poems[j]] = [poems[j], poems[i]];
 }
 
 showVerse();
