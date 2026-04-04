@@ -9,21 +9,29 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html, body {
   width: 100vw; height: 100vh; overflow: hidden;
-  background: #111;
+  background: #2a2520;
   display: flex; align-items: center; justify-content: center;
 }
 #sign {
-  width: 768px;
-  height: 192px;
+  width: 100vw;
+  height: 100vh;
   background: #2a2520;
-  border: 1px solid #DF562A;
   display: flex; align-items: center; justify-content: center;
   overflow: hidden;
   position: relative;
 }
+/* Local preview: add border when window is wider than 768 */
+@media (min-width: 800px) {
+  html, body { background: #111; }
+  #sign {
+    width: 768px;
+    height: 192px;
+    border: 1px solid #DF562A;
+  }
+}
 #poem {
   text-align: center;
-  width: 768px;
+  width: 100%;
   padding: 0 16px;
   opacity: 1;
   transition: opacity 0.6s ease-in-out;
@@ -200,8 +208,9 @@ function measureWidth(text, fontSize) {
 
 function fitText(text) {
   const parts = text.split('\n');
-  const maxW = SIGN_W - PAD;
-  const maxH = SIGN_H - 12;
+  const signEl = document.getElementById('sign');
+  const maxW = signEl.offsetWidth - PAD;
+  const maxH = signEl.offsetHeight - 12;
 
   let bestSize = MAX_FONT;
   for (const part of parts) {
@@ -240,7 +249,7 @@ function showVerse() {
     linesEl.style.fontSize = '';
     linesEl.style.color = '';
     linesEl.innerHTML =
-      '<div style="display:flex;align-items:center;justify-content:' + pos + ';width:768px;height:192px;padding:0 8px;margin-top:' + vShift + 'px;">' +
+      '<div style="display:flex;align-items:center;justify-content:' + pos + ';width:100%;height:100%;padding:0 8px;margin-top:' + vShift + 'px;">' +
         '<div style="background:' + makeColor + ';padding:8px 20px;margin:0 12px;">' +
           '<span style="font-family:Plus Jakarta Sans,sans-serif;font-weight:800;font-size:60px;color:#2a2520;text-transform:uppercase;letter-spacing:2px;">MAKE</span>' +
         '</div>' +
@@ -251,7 +260,8 @@ function showVerse() {
     const mw = document.getElementById('makeword');
     let sz = 90;
     mw.style.fontSize = sz + 'px';
-    while (sz > 30 && mw.scrollWidth > (SIGN_W - 220)) {
+    const signW = document.getElementById('sign').offsetWidth;
+    while (sz > 30 && mw.scrollWidth > (signW - 220)) {
       sz -= 2;
       mw.style.fontSize = sz + 'px';
     }
