@@ -49,6 +49,10 @@ html, body {
 
 <script>
 const CYCLE_MS = 6000;
+const RELOAD_MS = 5 * 60 * 1000; // reload page every 5 min to pick up new content
+
+// Auto-reload to fetch latest GitHub Pages deploy
+setTimeout(() => { location.reload(); }, RELOAD_MS);
 const FADE_MS = 600;
 const MAX_FONT = 80;
 const MIN_FONT = 28;
