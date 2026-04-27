@@ -188,7 +188,7 @@ const MAKE_WORDS = [
 
 let index = 0;
 let showMantra = false;
-let showMake = false;
+let showMake = true;
 let makeIndex = 0;
 let colorIndex = 0;
 const poemEl = document.getElementById('poem');
@@ -287,29 +287,10 @@ let mantraCount = 0;
 function cycle() {
   poemEl.classList.add('fade-out');
   setTimeout(() => {
-    if (showMake) {
-      // After MAKE, back to poems
-      showMake = false;
-      showMantra = false;
-      index++;
-      colorIndex++;
-      makeIndex++;
-    } else if (showMantra) {
-      showMantra = false;
-      index++;
-      colorIndex++;
-    } else {
-      // Time for interstitial
-      mantraCount++;
-      if (mantraCount % 3 === 0) {
-        // Every 3rd interstitial is a MAKE slide
-        showMake = true;
-        showMantra = false;
-      } else {
-        showMantra = true;
-        showMake = false;
-      }
-    }
+    showMake = true;
+    showMantra = false;
+    makeIndex++;
+    colorIndex++;
     showVerse();
   }, FADE_MS);
 }
