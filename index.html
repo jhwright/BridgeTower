@@ -13,21 +13,17 @@
     display: flex; align-items: center; justify-content: center;
     font-family: 'Plus Jakarta Sans', sans-serif;
   }
-  /* The sign is composed at exactly 768x192 (4:1), then scaled to fill
-     whatever viewport it lands in — a desktop browser OR the Taurus widget's
-     larger internal viewport. The 4:1 ratio holds by construction, so content
-     always fills the panel edge-to-edge with no letterboxing or clipping. */
+  /* Fill the ACTUAL viewport. The Taurus web widget renders the page at its
+     own internal size (often larger than, and not necessarily exactly, 768x192),
+     so every dimension below is derived from the live viewport rather than
+     hardcoded pixels. This fills the panel edge-to-edge at any resolution —
+     the proven approach for this player; contain/letterbox scaling shrinks it. */
   #sign {
-    width: 768px; height: 192px;
-    flex: none;
+    width: 100vw; height: 100vh;
     background: #000;
     overflow: hidden;
     position: relative;
-    transform: scale(var(--s, 1));
-    transform-origin: center center;
   }
-  /* Thin outline only in a local browser window (viewport isn't 4:1) */
-  #sign.preview { outline: 1px solid #333; }
 
   .slide {
     position: absolute; inset: 0;
@@ -78,7 +74,9 @@ const CYCLE_MS = 6000;
 const FADE_MS  = 600;
 const RELOAD_MS = 5 * 60 * 1000; // pick up new GitHub Pages deploys
 
-const W = 768, H = 192;
+// Live viewport dimensions — refreshed each step() and on resize so all
+// layout math fills whatever size the Taurus widget actually renders at.
+let W = window.innerWidth, H = window.innerHeight;
 
 // Bridge division palette
 const C = {
@@ -135,7 +133,7 @@ const measureEl = document.getElementById('measure');
 function fitOneLine(text, maxW, maxH, tracking = 0, startPx = 220) {
   measureEl.style.letterSpacing = (tracking || 0) + 'em';
   measureEl.textContent = text;
-  let lo = 10, hi = startPx, best = 10;
+  let lo = 10, hi = Math.max(startPx, Math.ceil(maxH * 2)), best = 10;
   while (lo <= hi) {
     const mid = (lo + hi) >> 1;
     measureEl.style.fontSize = mid + 'px';
@@ -158,7 +156,7 @@ const LAYOUTS = [];
 LAYOUTS.push(function splitHorizontal(word, [bg, fg, accent]) {
   const el = document.createElement('div');
   el.className = 'slide';
-  const leftW = 288, rightW = W - leftW;
+  const leftW = Math.round(W * 0.375), rightW = W - leftW;
   const makeSize  = fitOneLine("MAKE", leftW - 28, H - 16, -0.02);
   const wordSize  = fitOneLine(word, rightW - 28, H - 16, -0.02);
   el.innerHTML = `
@@ -175,7 +173,7 @@ LAYOUTS.push(function splitHorizontal(word, [bg, fg, accent]) {
 LAYOUTS.push(function stackBar(word, [bg, fg, accent]) {
   const el = document.createElement('div');
   el.className = 'slide';
-  const barH = 58;
+  const barH = Math.round(H * 0.30);
   const makeSize = fitOneLine("MAKE", W - 40, barH - 10, 0.08);
   const wordSize = fitOneLine(word, W - 24, H - barH - 10, -0.02);
   el.innerHTML = `
@@ -194,7 +192,7 @@ LAYOUTS.push(function stackBar(word, [bg, fg, accent]) {
 LAYOUTS.push(function inlineTag(word, [bg, fg, accent]) {
   const el = document.createElement('div');
   el.className = 'slide';
-  const tagH = 68, tagPadX = 18;
+  const tagH = Math.round(H * 0.355), tagPadX = Math.round(W * 0.023);
   const makeSize = fitOneLine("MAKE", 240, tagH - 8, 0.04);
   const approxTagW = makeSize * 3.1 + tagPadX * 2; // rough
   const remaining = W - approxTagW - 64;
@@ -213,7 +211,7 @@ LAYOUTS.push(function inlineTag(word, [bg, fg, accent]) {
 LAYOUTS.push(function rightBleed(word, [bg, fg, accent]) {
   const el = document.createElement('div');
   el.className = 'slide';
-  const leftW = 160;
+  const leftW = Math.round(W * 0.208);
   const makeSize = fitOneLine("MAKE", leftW - 20, H/2 - 10, 0);
   const wordSize = fitOneLine(word, W - leftW - 16, H - 16, -0.03);
   el.innerHTML = `
@@ -232,8 +230,8 @@ LAYOUTS.push(function rightBleed(word, [bg, fg, accent]) {
 LAYOUTS.push(function underline(word, [bg, fg, accent]) {
   const el = document.createElement('div');
   el.className = 'slide';
-  const makeSize = fitOneLine("MAKE", W - 48, 70, 0.1);
-  const wordSize = fitOneLine(word, W - 48, 96, -0.03);
+  const makeSize = fitOneLine("MAKE", W - 48, Math.round(H * 0.365), 0.1);
+  const wordSize = fitOneLine(word, W - 48, Math.round(H * 0.5), -0.03);
   el.innerHTML = `
     <div style="width:100%;height:100%;background:${bg};display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px;padding:8px 24px;">
       <div class="t wide" style="font-size:${makeSize}px;color:${accent};letter-spacing:0.12em;">MAKE</div>
@@ -264,8 +262,8 @@ LAYOUTS.push(function blockHighlight(word, [bg, fg, accent]) {
 LAYOUTS.push(function punctuation(word, [bg, fg, accent]) {
   const el = document.createElement('div');
   el.className = 'slide';
-  const topSize  = fitOneLine("MAKE", 180, 56, 0.08);
-  const wordSize = fitOneLine(word + ".", W - 48, H - 70, -0.03);
+  const topSize  = fitOneLine("MAKE", Math.round(W * 0.234), Math.round(H * 0.29), 0.08);
+  const wordSize = fitOneLine(word + ".", W - 48, H - Math.round(H * 0.40), -0.03);
   el.innerHTML = `
     <div style="width:100%;height:100%;background:${bg};padding:10px 24px;display:flex;flex-direction:column;justify-content:space-between;">
       <div class="t wide" style="font-size:${topSize}px;color:${accent};letter-spacing:0.14em;">MAKE</div>
@@ -281,9 +279,10 @@ LAYOUTS.push(function arrow(word, [bg, fg, accent]) {
   const el = document.createElement('div');
   el.className = 'slide';
   // Fit "MAKE → word" where → is a block
-  const makeSize = fitOneLine("MAKE", 280, H - 40, 0);
+  const makeBoxW = Math.round(W * 0.365);
+  const makeSize = fitOneLine("MAKE", makeBoxW, H - 40, 0);
   const arrowW = Math.round(makeSize * 1.0);
-  const wordSize = fitOneLine(word, W - 280 - arrowW - 60, H - 24, -0.03);
+  const wordSize = fitOneLine(word, W - makeBoxW - arrowW - 60, H - 24, -0.03);
   el.innerHTML = `
     <div style="width:100%;height:100%;background:${bg};display:flex;align-items:center;justify-content:center;gap:20px;padding:0 20px;">
       <div class="t tighter" style="font-size:${makeSize}px;color:${fg};">MAKE</div>
@@ -325,6 +324,7 @@ function nextWord() {
 }
 
 function step() {
+  W = window.innerWidth; H = window.innerHeight; // size to the live viewport
   const word = nextWord();
   const layout = LAYOUTS[layoutIdx % LAYOUTS.length];
   const pair = PAIRS[pairIdx % PAIRS.length];
@@ -349,14 +349,13 @@ function step() {
   });
 }
 
-// Scale the 768x192 stage to fill the viewport, preserving the 4:1 ratio.
-function fitStage() {
-  document.documentElement.style.setProperty('--s', Math.min(window.innerWidth / W, window.innerHeight / H));
-  const aspect = window.innerWidth / window.innerHeight;
-  sign.classList.toggle('preview', Math.abs(aspect - W / H) > 0.05);
-}
-window.addEventListener('resize', fitStage);
-fitStage();
+// Re-render on resize (mainly for local testing; the Taurus viewport is fixed
+// once the page loads). Debounced so dragging a window stays smooth.
+let resizeTimer = null;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(step, 150);
+});
 
 // Wait for font, then go
 document.fonts.ready.then(() => {
