@@ -18,10 +18,13 @@ Do not add a fixed stage, contain scaling, or letterboxing to the live sign.
 - `index.html`: the rotation engine and 50 MAKE messages.
 - `sign-layouts.js`: eight layouts with measured text widths and proportional margins.
 - `campaign.js`: the festival artwork, dates, and Pacific airtime schedule.
+- `brightness.js`: lower output with gradual daylight adjustment for Richmond.
+- `vendor/`: pinned SunCalc code and license for local sun position calculations.
 - `slides/cohen-festival-date-block-768x192.png`: Jeff's selected PDF option #3.
 - `assets/`: the local MAKE font and its license. The live page needs no external CDN.
 - `docs/slide-inventory.md`: the complete active message list.
 - `docs/festival-campaign.md`: schedule, verification, and rollback instructions.
+- `docs/brightness.md`: dimming levels, operation, and controller access limitations.
 
 `slides.json`, the CSV, poetry HTML, and test HTML are legacy files. They are not in the active rotation.
 The old `.claude/skills/update-sign.md` describes that legacy engine. Do not regenerate the current page from those instructions.
@@ -30,10 +33,12 @@ The old `.claude/skills/update-sign.md` describes that legacy engine. Do not reg
 
 1. Run `python3 -m http.server 8789` from the repository directory.
 2. Open `http://localhost:8789/` in a 768 x 192 browser viewport.
-3. Run `node --test tests/campaign.test.cjs` for the schedule checks.
+3. Run `node --test tests/*.test.cjs` for the schedule and brightness checks.
 4. Use the browser checks in `docs/festival-campaign.md` for every message and layout.
 
 Keep campaign transitions as cuts. Crossfades at campaign boundaries change the allocated screen time.
 Preserve the selected artwork, message wording, shuffle, and Pacific schedule unless Jeff requests a change.
+Keep the 8% CSS brightness default to prevent bright flashes during reloads.
+Webpage dimming uses calculated sun position. A hardware light sensor has not been confirmed.
 
 The shared task record is [issue #2](https://github.com/jhwright/BridgeTower/issues/2).

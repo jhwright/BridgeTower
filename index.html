@@ -30,6 +30,8 @@
     background: #000;
     overflow: hidden;
     position: relative;
+    /* Dim before scripts load; also covers images and colored backgrounds. */
+    opacity: 0.08;
   }
 
   .slide {
@@ -74,6 +76,22 @@
 
 <script src="campaign.js?v=20261008"></script>
 <script src="sign-layouts.js?v=20261008"></script>
+<script src="vendor/suncalc-1.9.0.js"></script>
+<script src="brightness.js?v=20261009"></script>
+<script>
+// Apply before the rotation starts. Never flash full output during a reload.
+function updateBrightness() {
+  if (!window.BridgeBrightness) return; // retain the dim CSS default
+  var state = BridgeBrightness.getState(Date.now());
+  document.getElementById('sign').style.opacity = state.level;
+  window.towerBrightnessStatus = state;
+}
+updateBrightness();
+setInterval(updateBrightness, window.BridgeBrightness ? BridgeBrightness.config.updateMs : 30000);
+document.addEventListener('visibilitychange', function () {
+  if (!document.hidden) updateBrightness();
+});
+</script>
 <script>
 /* ============================================================
    BRIDGE TOWER — MAKE ___
