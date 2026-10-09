@@ -4,8 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 <title>Tower Sign — MAKE</title>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@800&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="slides/cohen-festival-date-block-768x192.png">
 <style>
+  @font-face {
+    font-family: 'Plus Jakarta Sans';
+    font-style: normal;
+    font-weight: 800;
+    font-display: swap;
+    src: url('assets/plus-jakarta-sans-800.ttf') format('truetype');
+  }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body {
     width: 100vw; height: 100vh; overflow: hidden;
@@ -32,6 +39,8 @@
     display: flex;
   }
   .slide.on { opacity: 1; }
+  .slide.campaign { transition: none; }
+  .slide.campaign img { width: 100%; height: 100%; display: block; }
 
   /* Base text treatment — heavy, uppercase, tight leading */
   .t {
@@ -63,14 +72,16 @@
   <div id="sign"></div>
   <div id="measure"></div>
 
+<script src="campaign.js?v=20261008"></script>
+<script src="sign-layouts.js?v=20261008"></script>
 <script>
 /* ============================================================
    BRIDGE TOWER — MAKE ___
-   768 x 192 LED sign. Visible from I-580 at ~300'.
+   768 x 192 LED sign. Designed for I-580 viewing at about 200'.
    Every slide: full-bleed, two Bridge colors, edge-to-edge type.
    ============================================================ */
 
-const CYCLE_MS = 6000;
+const CYCLE_MS = BridgeCampaign.slotMs;
 const FADE_MS  = 600;
 const RELOAD_MS = 5 * 60 * 1000; // pick up new GitHub Pages deploys
 
@@ -138,7 +149,7 @@ function fitOneLine(text, maxW, maxH, tracking = 0, startPx = 220) {
     const mid = (lo + hi) >> 1;
     measureEl.style.fontSize = mid + 'px';
     const w = measureEl.offsetWidth;
-    const h = measureEl.offsetHeight;
+    const h = Math.max(measureEl.offsetHeight, mid);
     if (w <= maxW && h <= maxH) { best = mid; lo = mid + 1; }
     else { hi = mid - 1; }
   }
@@ -150,147 +161,13 @@ function fitOneLine(text, maxW, maxH, tracking = 0, startPx = 220) {
    Each layout takes (word, pair) → returns an HTMLElement (.slide).
    Use inline styles so each slide is self-contained.
 -------------------------------------------------------------*/
-const LAYOUTS = [];
-
-// 1) SPLIT — left half MAKE, right half word. Two colors collide.
-LAYOUTS.push(function splitHorizontal(word, [bg, fg, accent]) {
-  const el = document.createElement('div');
-  el.className = 'slide';
-  const leftW = Math.round(W * 0.375), rightW = W - leftW;
-  const makeSize  = fitOneLine("MAKE", leftW - 28, H - 16, -0.02);
-  const wordSize  = fitOneLine(word, rightW - 28, H - 16, -0.02);
-  el.innerHTML = `
-    <div style="width:${leftW}px;height:100%;background:${fg};display:flex;align-items:center;justify-content:center;">
-      <div class="t tighter" style="font-size:${makeSize}px;color:${bg};">MAKE</div>
-    </div>
-    <div style="flex:1;height:100%;background:${bg};display:flex;align-items:center;justify-content:center;">
-      <div class="t tighter" style="font-size:${wordSize}px;color:${fg};">${word}</div>
-    </div>`;
-  return el;
-});
-
-// 2) STACK — MAKE on top row (smaller colored bar), word huge below.
-LAYOUTS.push(function stackBar(word, [bg, fg, accent]) {
-  const el = document.createElement('div');
-  el.className = 'slide';
-  const barH = Math.round(H * 0.30);
-  const makeSize = fitOneLine("MAKE", W - 40, barH - 10, 0.08);
-  const wordSize = fitOneLine(word, W - 24, H - barH - 10, -0.02);
-  el.innerHTML = `
-    <div style="width:100%;height:100%;background:${bg};display:flex;flex-direction:column;">
-      <div style="height:${barH}px;background:${accent};display:flex;align-items:center;padding:0 20px;">
-        <div class="t wide" style="font-size:${makeSize}px;color:${bg};">MAKE</div>
-      </div>
-      <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:0 12px;">
-        <div class="t tighter" style="font-size:${wordSize}px;color:${fg};">${word}</div>
-      </div>
-    </div>`;
-  return el;
-});
-
-// 3) INLINE TAG — small MAKE block + massive word filling the rest.
-LAYOUTS.push(function inlineTag(word, [bg, fg, accent]) {
-  const el = document.createElement('div');
-  el.className = 'slide';
-  const tagH = Math.round(H * 0.355), tagPadX = Math.round(W * 0.023);
-  const makeSize = fitOneLine("MAKE", 240, tagH - 8, 0.04);
-  const approxTagW = makeSize * 3.1 + tagPadX * 2; // rough
-  const remaining = W - approxTagW - 64;
-  const wordSize = fitOneLine(word, remaining, H - 24, -0.03);
-  el.innerHTML = `
-    <div style="width:100%;height:100%;background:${bg};display:flex;align-items:center;padding:0 24px;gap:24px;">
-      <div style="background:${accent};padding:6px ${tagPadX}px;display:flex;align-items:center;">
-        <div class="t" style="font-size:${makeSize}px;color:${bg};letter-spacing:0.04em;">MAKE</div>
-      </div>
-      <div class="t tighter" style="font-size:${wordSize}px;color:${fg};">${word}</div>
-    </div>`;
-  return el;
-});
-
-// 4) RIGHT-ALIGN — MAKE stacked left small, word huge right-bleed.
-LAYOUTS.push(function rightBleed(word, [bg, fg, accent]) {
-  const el = document.createElement('div');
-  el.className = 'slide';
-  const leftW = Math.round(W * 0.208);
-  const makeSize = fitOneLine("MAKE", leftW - 20, H/2 - 10, 0);
-  const wordSize = fitOneLine(word, W - leftW - 16, H - 16, -0.03);
-  el.innerHTML = `
-    <div style="width:100%;height:100%;background:${bg};display:flex;align-items:center;">
-      <div style="width:${leftW}px;padding-left:20px;">
-        <div class="t" style="font-size:${makeSize}px;color:${accent};letter-spacing:0.02em;">MAKE</div>
-      </div>
-      <div style="flex:1;display:flex;align-items:center;justify-content:flex-end;padding-right:16px;">
-        <div class="t tighter" style="font-size:${wordSize}px;color:${fg};">${word}</div>
-      </div>
-    </div>`;
-  return el;
-});
-
-// 5) UNDERLINE — MAKE above, word below with thick underline accent.
-LAYOUTS.push(function underline(word, [bg, fg, accent]) {
-  const el = document.createElement('div');
-  el.className = 'slide';
-  const makeSize = fitOneLine("MAKE", W - 48, Math.round(H * 0.365), 0.1);
-  const wordSize = fitOneLine(word, W - 48, Math.round(H * 0.5), -0.03);
-  el.innerHTML = `
-    <div style="width:100%;height:100%;background:${bg};display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px;padding:8px 24px;">
-      <div class="t wide" style="font-size:${makeSize}px;color:${accent};letter-spacing:0.12em;">MAKE</div>
-      <div style="border-bottom:6px solid ${accent};padding-bottom:0;">
-        <div class="t tighter" style="font-size:${wordSize}px;color:${fg};">${word}</div>
-      </div>
-    </div>`;
-  return el;
-});
-
-// 6) BLOCK-HIGHLIGHT — MAKE in a highlighted block inline with the word.
-LAYOUTS.push(function blockHighlight(word, [bg, fg, accent]) {
-  const el = document.createElement('div');
-  el.className = 'slide';
-  // Scale the full line "MAKE  word" to fit
-  const combined = `MAKE ${word}`;
-  const size = fitOneLine(combined, W - 32, H - 20, -0.02);
-  el.innerHTML = `
-    <div style="width:100%;height:100%;background:${bg};display:flex;align-items:center;justify-content:center;padding:0 16px;">
-      <div class="t tighter" style="font-size:${size}px;color:${fg};display:flex;align-items:center;gap:${Math.round(size*0.22)}px;">
-        <span style="background:${accent};color:${bg};padding:0 ${Math.round(size*0.14)}px;line-height:1;">MAKE</span><span>${word}</span>
-      </div>
-    </div>`;
-  return el;
-});
-
-// 7) BIG DOT — oversized dot/period after word as rhythmic punctuation.
-LAYOUTS.push(function punctuation(word, [bg, fg, accent]) {
-  const el = document.createElement('div');
-  el.className = 'slide';
-  const topSize  = fitOneLine("MAKE", Math.round(W * 0.234), Math.round(H * 0.29), 0.08);
-  const wordSize = fitOneLine(word + ".", W - 48, H - Math.round(H * 0.40), -0.03);
-  el.innerHTML = `
-    <div style="width:100%;height:100%;background:${bg};padding:10px 24px;display:flex;flex-direction:column;justify-content:space-between;">
-      <div class="t wide" style="font-size:${topSize}px;color:${accent};letter-spacing:0.14em;">MAKE</div>
-      <div class="t tighter" style="font-size:${wordSize}px;color:${fg};">
-        ${word}<span style="color:${accent};">.</span>
-      </div>
-    </div>`;
-  return el;
-});
-
-// 8) ARROW — MAKE → word, arrow in accent.
-LAYOUTS.push(function arrow(word, [bg, fg, accent]) {
-  const el = document.createElement('div');
-  el.className = 'slide';
-  // Fit "MAKE → word" where → is a block
-  const makeBoxW = Math.round(W * 0.365);
-  const makeSize = fitOneLine("MAKE", makeBoxW, H - 40, 0);
-  const arrowW = Math.round(makeSize * 1.0);
-  const wordSize = fitOneLine(word, W - makeBoxW - arrowW - 60, H - 24, -0.03);
-  el.innerHTML = `
-    <div style="width:100%;height:100%;background:${bg};display:flex;align-items:center;justify-content:center;gap:20px;padding:0 20px;">
-      <div class="t tighter" style="font-size:${makeSize}px;color:${fg};">MAKE</div>
-      <div style="color:${accent};font-size:${Math.round(makeSize*0.9)}px;font-weight:800;line-height:1;">→</div>
-      <div class="t tighter" style="font-size:${wordSize}px;color:${accent};">${word}</div>
-    </div>`;
-  return el;
-});
+function textWidth(text, size, tracking = 0) {
+  measureEl.style.fontSize = size + 'px';
+  measureEl.style.letterSpacing = tracking + 'em';
+  measureEl.textContent = text;
+  return measureEl.getBoundingClientRect().width;
+}
+const LAYOUTS = BridgeLayouts(() => ({ W, H }), fitOneLine, textWidth);
 
 /* ------------------------------------------------------------
    ENGINE
@@ -312,6 +189,30 @@ let wordIdx = 0;
 let layoutIdx = Math.floor(Math.random() * LAYOUTS.length);
 let pairIdx = Math.floor(Math.random() * PAIRS.length);
 let currentSlide = null;
+let renderedSlot = null;
+let stepTimer = null;
+
+// Exact PDF option #3. Stretch to the live widget viewport, just like MAKE.
+function festivalSlide() {
+  const el = document.createElement('div');
+  el.className = 'slide campaign';
+  el.dataset.content = 'festival';
+  const img = document.createElement('img');
+  img.src = BridgeCampaign.config.artwork;
+  img.alt = 'SF Leonard Cohen Festival — November 5–8';
+  // Keep the message visible even if an asset request fails on the controller.
+  img.onerror = () => {
+    img.remove();
+    el.innerHTML = `<div style="width:100%;height:100%;background:#000;color:#fff;font-family:Arial,Helvetica,sans-serif;font-weight:900;white-space:nowrap;position:relative;">
+      <div style="position:absolute;left:2.6%;top:7%;font-size:${W * 0.077}px;letter-spacing:-.028em;line-height:1;">SF LEONARD COHEN</div>
+      <div style="position:absolute;left:0;right:0;top:50%;bottom:0;display:flex;align-items:center;">
+        <div style="width:58%;padding-left:2.6%;font-size:${W * 0.093}px;line-height:1;letter-spacing:-.03em;color:#E9A825;">FESTIVAL</div>
+        <div style="width:42%;height:100%;display:flex;align-items:center;justify-content:center;background:#E9A825;color:#000;font-size:${W * 0.0685}px;letter-spacing:-.04em;">NOV 5–8</div>
+      </div></div>`;
+  };
+  el.appendChild(img);
+  return el;
+}
 
 function nextWord() {
   if (wordIdx >= wordQueue.length) {
@@ -323,30 +224,48 @@ function nextWord() {
   return wordQueue[wordIdx++];
 }
 
-function step() {
-  W = window.innerWidth; H = window.innerHeight; // size to the live viewport
-  const word = nextWord();
-  const layout = LAYOUTS[layoutIdx % LAYOUTS.length];
-  const pair = PAIRS[pairIdx % PAIRS.length];
-  layoutIdx++;
-  pairIdx += 3; // jump through palette so adjacent slides feel different
-  // Light vertical jitter for pixel burn-in prevention (±6 px)
-  const jitter = ((pairIdx * 7 + layoutIdx) % 7) - 3;
-
-  const el = layout(word, pair);
-  el.style.transform = `translateY(${jitter}px)`;
+function step(force = false) {
+  clearTimeout(stepTimer);
+  const state = BridgeCampaign.getState(Date.now());
+  // Read-only diagnostics for verification; never shown on the sign.
+  window.towerSignStatus = state;
+  if (!force && renderedSlot === state.absoluteSlot) {
+    stepTimer = setTimeout(step, Math.max(1, state.nextAt - Date.now()));
+    return;
+  }
+  renderedSlot = state.absoluteSlot;
+  W = window.innerWidth; H = window.innerHeight;
+  let el;
+  if (state.showCampaign) {
+    el = festivalSlide();
+  } else {
+    const word = nextWord();
+    const layout = LAYOUTS[layoutIdx % LAYOUTS.length];
+    const pair = PAIRS[pairIdx % PAIRS.length];
+    layoutIdx++;
+    pairIdx += 3;
+    const jitter = ((pairIdx * 7 + layoutIdx) % 7) - 3;
+    el = layout(word, pair);
+    el.dataset.content = 'make';
+    el.style.transform = `translateY(${jitter}px)`;
+  }
   sign.appendChild(el);
-
-  // fade in new
-  requestAnimationFrame(() => {
+  const previous = currentSlide;
+  currentSlide = el;
+  // Campaign boundaries are cuts, so transitions never consume campaign time.
+  if (!previous || state.showCampaign || previous.dataset.content === 'festival') {
+    el.style.transition = 'none';
     el.classList.add('on');
-    if (currentSlide) {
-      currentSlide.classList.remove('on');
-      const dying = currentSlide;
-      setTimeout(() => { dying.remove(); }, FADE_MS + 50);
-    }
-    currentSlide = el;
-  });
+    if (previous) previous.remove();
+  } else {
+    requestAnimationFrame(() => {
+      if (currentSlide !== el) return;
+      el.classList.add('on');
+      previous.classList.remove('on');
+      setTimeout(() => { previous.remove(); }, FADE_MS + 50);
+    });
+  }
+  stepTimer = setTimeout(step, Math.max(1, state.nextAt - Date.now()));
 }
 
 // Re-render on resize (mainly for local testing; the Taurus viewport is fixed
@@ -354,13 +273,15 @@ function step() {
 let resizeTimer = null;
 window.addEventListener('resize', () => {
   clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(step, 150);
+  resizeTimer = setTimeout(() => step(true), 150);
+});
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) step();
 });
 
 // Wait for font, then go
 document.fonts.ready.then(() => {
   step();
-  setInterval(step, CYCLE_MS);
 });
 
 // Auto-reload to pick up new deploys
