@@ -4,7 +4,7 @@ const { execFileSync } = require('node:child_process');
 const brightness = require('../brightness.js');
 
 test('Richmond midday and midnight have reduced output ceilings', () => {
-  assert.equal(brightness.getState('2026-10-09T12:00:00-07:00').level, 0.40);
+  assert.equal(brightness.getState('2026-10-09T12:00:00-07:00').level, 0.75);
   assert.equal(brightness.getState('2026-10-09T00:00:00-07:00').level, 0.08);
 });
 
@@ -17,9 +17,9 @@ test('daylight remains bounded and gradual throughout every day of 2026', () => 
   let previous;
   for (let now = Date.parse('2026-01-01T00:00:00Z'); now < Date.parse('2027-01-01T00:00:00Z'); now += 30000) {
     const state = brightness.getState(now);
-    assert.ok(state.level >= 0.08 && state.level <= 0.40);
+    assert.ok(state.level >= 0.08 && state.level <= 0.75);
     assert.notEqual(state.phase, 'fallback');
-    if (previous !== undefined) assert.ok(Math.abs(state.level - previous) < 0.006, 'no sudden output changes');
+    if (previous !== undefined) assert.ok(Math.abs(state.level - previous) < 0.015, 'no sudden output changes');
     previous = state.level;
   }
 });
@@ -29,7 +29,7 @@ test('sunrise brightens gradually and sunset dims gradually', () => {
   const dusk = ['18:00', '18:15', '18:30', '18:45', '19:00', '19:15'].map(t => brightness.getState(`2026-10-09T${t}:00-07:00`).level);
   assert.ok(dawn.every((level, i) => !i || level >= dawn[i-1]));
   assert.ok(dusk.every((level, i) => !i || level <= dusk[i-1]));
-  assert.equal(dawn.at(-1), 0.40);
+  assert.equal(dawn.at(-1), 0.75);
   assert.equal(dusk.at(-1), 0.08);
 });
 

@@ -12,7 +12,7 @@
     // Approximate Richmond location; no network or ambient sensor is used.
     latitude: 37.935,
     longitude: -122.347,
-    day: 0.40,
+    day: 0.75,
     horizon: 0.15,
     night: 0.08,
     updateMs: 30000
