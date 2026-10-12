@@ -15,8 +15,8 @@ const url = process.env.BRIDGE_TEST_URL || 'http://127.0.0.1:8789/';
   await page.clock.pauseAt(new Date('2026-10-09T12:00:00-07:00'));
   await page.goto(url);
   await page.waitForSelector('.slide.on');
-  assert.equal(await page.evaluate(() => towerBrightnessStatus.level), 0.4);
-  assert.equal(await page.locator('#sign').evaluate(el => getComputedStyle(el).opacity), '0.4');
+  assert.equal(await page.evaluate(() => towerBrightnessStatus.level), 0.75);
+  assert.equal(await page.locator('#sign').evaluate(el => getComputedStyle(el).opacity), '0.75');
 
   async function verifyFrame(kind, level) {
     await page.evaluate(kind => {
@@ -32,8 +32,8 @@ const url = process.env.BRIDGE_TEST_URL || 'http://127.0.0.1:8789/';
     for (let i = 0; i < png.data.length; i += 4) max = Math.max(max, png.data[i], png.data[i+1], png.data[i+2]);
     assert.ok(max >= Math.floor(255*level)-2 && max <= Math.ceil(255*level)+2, `${kind} channel maximum ${max}, expected ${level}`);
   }
-  await verifyFrame('make', 0.4);
-  await verifyFrame('festival', 0.4);
+  await verifyFrame('make', 0.75);
+  await verifyFrame('festival', 0.75);
 
   await page.clock.setSystemTime(new Date('2026-10-09T22:00:00-07:00'));
   await page.clock.runFor(30000);
@@ -59,10 +59,10 @@ const url = process.env.BRIDGE_TEST_URL || 'http://127.0.0.1:8789/';
   await page.clock.setSystemTime(new Date('2026-10-10T07:00:00-07:00'));
   await page.clock.runFor(30000);
   const dawnLevel = await page.evaluate(() => towerBrightnessStatus.level);
-  assert.ok(dawnLevel > 0.08 && dawnLevel < 0.4);
+  assert.ok(dawnLevel > 0.08 && dawnLevel < 0.75);
   await page.clock.setSystemTime(new Date('2026-10-10T08:00:00-07:00'));
   await page.clock.runFor(30000);
-  assert.equal(await page.evaluate(() => towerBrightnessStatus.level), 0.4);
+  assert.equal(await page.evaluate(() => towerBrightnessStatus.level), 0.75);
   assert.deepEqual(errors, []);
 
   // Failed brightness scripts leave the safe CSS level and playable rotation.
@@ -77,6 +77,6 @@ const url = process.env.BRIDGE_TEST_URL || 'http://127.0.0.1:8789/';
   await noSun.waitForSelector('.slide.on');
   assert.equal(await noSun.evaluate(() => towerBrightnessStatus.phase), 'fallback');
   assert.equal(await noSun.locator('#sign').evaluate(el => getComputedStyle(el).opacity), '0.08');
-  console.log(JSON.stringify({day:0.4,night:0.08,dawnLevel,pixelChecks:5,reload:'passed',missingScripts:'passed',timezone:'Asia/Tokyo',browserErrors:errors}));
+  console.log(JSON.stringify({day:0.75,night:0.08,dawnLevel,pixelChecks:5,reload:'passed',missingScripts:'passed',timezone:'Asia/Tokyo',browserErrors:errors}));
   await browser.close();
 })().catch(e => {console.error(e);process.exit(1);});
