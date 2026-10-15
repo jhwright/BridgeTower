@@ -232,6 +232,36 @@ function festivalSlide() {
   return el;
 }
 
+// Two large lines for the 4:1 panel and freeway viewing distance.
+function truckSlide() {
+  const el = document.createElement('div');
+  el.className = 'slide';
+  el.dataset.content = 'truck';
+  el.setAttribute('aria-label', "Free 18' E-Truck with Storage Rental");
+  Object.assign(el.style, {
+    background: C.black,
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: `${H * 0.08}px ${W * 0.025}px`,
+    gap: `${H * 0.06}px`
+  });
+  const lines = [
+    ["FREE 18' E-TRUCK", C.marigold, H * 0.44],
+    ['WITH STORAGE RENTAL', C.white, H * 0.29]
+  ];
+  lines.forEach(([text, color, maxH]) => {
+    const line = document.createElement('div');
+    line.className = 't';
+    line.dataset.fitText = 'truck';
+    line.textContent = text;
+    line.style.color = color;
+    line.style.fontSize = fitOneLine(text, W * 0.95, maxH) + 'px';
+    el.appendChild(line);
+  });
+  return el;
+}
+
 function nextWord() {
   if (wordIdx >= wordQueue.length) {
     // Reshuffle, avoiding an immediate repeat at the seam
@@ -253,9 +283,14 @@ function step(force = false) {
   }
   renderedSlot = state.absoluteSlot;
   W = window.innerWidth; H = window.innerHeight;
+  // Reserve festival slots first. Count only the available slots for the truck.
+  // Wall-clock placement survives reloads and resize without advancing a counter.
+  const ordinarySlot = state.slot - Math.floor(state.slot * state.percent / 100);
   let el;
   if (state.showCampaign) {
     el = festivalSlide();
+  } else if (ordinarySlot % 10 === 0) {
+    el = truckSlide();
   } else {
     const word = nextWord();
     const layout = LAYOUTS[layoutIdx % LAYOUTS.length];
