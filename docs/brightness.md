@@ -30,12 +30,14 @@ Its license is retained in `vendor/SunCalc-LICENSE.txt`. No remote service is ne
 ## Controller settings and physical verification
 
 These values are webpage opacity settings over black. They are not calibrated nits, wattage measurements, or NovaStar controller percentages.
-The controller brightness setting has not been changed. The presence of a physical light sensor has not been confirmed.
-The recorded controller IP is unreachable from the current Mac. Jeff's existing remote connection is needed for hardware adjustment.
+On October 15, 2026, the Taurus controller was set to fixed Manual brightness at 100% through RustDesk and ViPlex Express.
+A fresh controller readback confirmed Manual, 100%. Its previous mode was Smart, with no entries in the adjustment table.
+Keep the hardware at 100% and use `brightness.js` for all time-of-day image dimming.
+The controller PC is accessible through RustDesk. The presence of a physical light sensor has not been confirmed.
 
 Check the actual sign during daylight, twilight, and darkness from about 200 feet.
 Confirm the player clock and inspect the NovaStar brightness settings and any connected sensor.
-Use controller limits for a hardware brightness cap. Measure electrical consumption if a wattage reduction must be quantified.
+Keep the fixed 100% hardware baseline during software calibration. Measure electrical consumption if a wattage reduction must be quantified.
 Keep the webpage dimming during that check, and adjust `day`, `horizon`, or `night` only if the field result requires it.
 
 ## Verification
