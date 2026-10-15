@@ -7,7 +7,7 @@ Jeff specifies a viewing distance of about 200 feet.
 ## Architecture
 
 The site has no build step. A push to `main` publishes the site through GitHub Pages.
-`index.html` generates the MAKE rotation directly. It does not read `slides.json` or the CSV.
+`index.html` generates the MAKE rotation and truck offer directly. It does not read `slides.json` or the CSV.
 The page reloads every five minutes to receive updates.
 
 All dimensions use the live browser viewport. The Taurus can use an internal viewport that differs from the physical display.
@@ -15,7 +15,7 @@ Do not add a fixed stage, contain scaling, or letterboxing to the live sign.
 
 ## Files
 
-- `index.html`: the rotation engine and 50 MAKE messages.
+- `index.html`: the rotation engine, 50 MAKE messages, and the free truck offer.
 - `sign-layouts.js`: eight layouts with measured text widths and proportional margins.
 - `campaign.js`: the festival artwork, dates, and Pacific airtime schedule.
 - `brightness.js`: lower output with gradual daylight adjustment for Richmond.
@@ -35,6 +35,7 @@ The old `.claude/skills/update-sign.md` describes that legacy engine. Do not reg
 2. Open `http://localhost:8789/` in a 768 x 192 browser viewport.
 3. Run `node --test tests/*.test.cjs` for the schedule and brightness checks.
 4. Use the browser checks in `docs/festival-campaign.md` for every message and layout.
+5. Run `node tests/truck-browser.cjs` for truck layout, rotation, reload, and dimming checks.
 
 Keep campaign transitions as cuts. Crossfades at campaign boundaries change the allocated screen time.
 Preserve the selected artwork, message wording, shuffle, and Pacific schedule unless Jeff requests a change.
