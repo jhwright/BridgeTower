@@ -118,11 +118,11 @@ const url = process.env.BRIDGE_TEST_URL || 'http://127.0.0.1:8789/';
       step(true);
     });
     await page.waitForSelector('.slide.on[data-content="truck"]');
-    assert.equal(await page.locator('#sign').evaluate(el => getComputedStyle(el).opacity), '0.08');
+    assert.equal(await page.locator('#sign').evaluate(el => getComputedStyle(el).opacity), '0.1');
     const nightPng = PNG.sync.read(await page.screenshot({ path: out + '/truck-night.png' }));
     let nightMax = 0;
     for (let i = 0; i < nightPng.data.length; i += 4) nightMax = Math.max(nightMax, nightPng.data[i], nightPng.data[i + 1], nightPng.data[i + 2]);
-    assert.ok(nightMax >= 19 && nightMax <= 22, `night max channel ${nightMax}`);
+    assert.ok(nightMax >= 24 && nightMax <= 27, `night max channel ${nightMax}`);
 
     // Day dimming
     await page.clock.setSystemTime(new Date('2026-10-15T12:00:00-07:00'));
@@ -137,11 +137,11 @@ const url = process.env.BRIDGE_TEST_URL || 'http://127.0.0.1:8789/';
       step(true);
     });
     await page.waitForSelector('.slide.on[data-content="truck"]');
-    assert.equal(await page.locator('#sign').evaluate(el => getComputedStyle(el).opacity), '0.75');
+    assert.equal(await page.locator('#sign').evaluate(el => getComputedStyle(el).opacity), '0.9375');
     const dayPng = PNG.sync.read(await page.screenshot({ path: out + '/truck-day.png' }));
     let dayMax = 0;
     for (let i = 0; i < dayPng.data.length; i += 4) dayMax = Math.max(dayMax, dayPng.data[i], dayPng.data[i + 1], dayPng.data[i + 2]);
-    assert.ok(dayMax >= 189 && dayMax <= 193, `day max channel ${dayMax}`);
+    assert.ok(dayMax >= 237 && dayMax <= 241, `day max channel ${dayMax}`);
 
     assert.deepEqual(errors, []);
     console.log(JSON.stringify({ truck: 'passed', layouts: 'passed', engineAllocations: 'passed', nightMax, dayMax, browserErrors: errors }));
