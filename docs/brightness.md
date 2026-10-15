@@ -5,15 +5,18 @@ The webpage now dims the entire sign, including images, text, backgrounds, and f
 
 | Daylight condition | Webpage output level |
 | --- | --- |
-| Sun at least 6 degrees above the horizon | 75% |
-| Sun at the horizon | 15% |
-| Sun at least 6 degrees below the horizon | 8% |
+| Sun at least 6 degrees above the horizon | 93.75% |
+| Sun at the horizon | 18.75% |
+| Sun at least 6 degrees below the horizon | 10% |
 
 On October 12, 2026, Jeff reported that 40% was too dim during daylight.
-Daytime output is now 75%. The horizon and night levels remain 15% and 8%.
+The October 12 settings were 75% day, 15% at the horizon, and 8% night.
+
+On October 15, 2026, Jeff requested 25% more brightness at all times.
+All three software levels were multiplied by 1.25: 93.75% day, 18.75% at the horizon, and 10% night.
 
 The level changes gradually between these points. It updates every 30 seconds and when the page becomes visible.
-The CSS starts at 8% before scripts load. It retains that level if the brightness script fails to load.
+The CSS starts at 10% before scripts load. It retains that level if the brightness script fails to load.
 
 ## How daylight is determined
 

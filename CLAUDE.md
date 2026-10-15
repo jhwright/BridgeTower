@@ -39,7 +39,7 @@ The old `.claude/skills/update-sign.md` describes that legacy engine. Do not reg
 
 Keep campaign transitions as cuts. Crossfades at campaign boundaries change the allocated screen time.
 Preserve the selected artwork, message wording, shuffle, and Pacific schedule unless Jeff requests a change.
-Keep the 8% CSS brightness default to prevent bright flashes during reloads.
+Keep the 10% CSS brightness default to prevent bright flashes during reloads.
 Webpage dimming uses calculated sun position. A hardware light sensor has not been confirmed.
 
 The shared task record is [issue #2](https://github.com/jhwright/BridgeTower/issues/2).
