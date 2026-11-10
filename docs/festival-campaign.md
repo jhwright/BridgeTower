@@ -1,5 +1,8 @@
 # SF Leonard Cohen Festival campaign
 
+This campaign is over. On November 10, 2026 the festival slide was removed from `index.html`.
+The notes below are the record of how it ran.
+
 Jeff selected **PDF option #3, Date block**, and authorized installation on October 8, 2026.
 The artwork says `SF LEONARD COHEN / FESTIVAL / NOV 5–8`. This option has no URL.
 

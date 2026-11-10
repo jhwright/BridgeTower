@@ -7,7 +7,7 @@ Jeff specifies a viewing distance of about 200 feet.
 ## Architecture
 
 The site has no build step. A push to `main` publishes the site through GitHub Pages.
-`index.html` generates the MAKE rotation and truck offer directly. It does not read `slides.json` or the CSV.
+`index.html` generates the MAKE rotation directly. It does not read `slides.json` or the CSV.
 The page reloads every five minutes to receive updates.
 
 All dimensions use the live browser viewport. The Taurus can use an internal viewport that differs from the physical display.
@@ -15,12 +15,12 @@ Do not add a fixed stage, contain scaling, or letterboxing to the live sign.
 
 ## Files
 
-- `index.html`: the rotation engine, 50 MAKE messages, and the free truck offer.
+- `index.html`: the rotation engine and 50 MAKE messages. The truck offer and the festival were removed on November 10, 2026.
 - `sign-layouts.js`: eight layouts with measured text widths and proportional margins.
-- `campaign.js`: the festival artwork, dates, and Pacific airtime schedule.
+- `campaign.js`: the six-second wall-clock slot timer. Its festival schedule is no longer used by `index.html`.
 - `brightness.js`: lower output with gradual daylight adjustment for Richmond.
 - `vendor/`: pinned SunCalc code and license for local sun position calculations.
-- `slides/cohen-festival-date-block-768x192.png`: Jeff's selected PDF option #3.
+- `slides/cohen-festival-date-block-768x192.png`: the old festival artwork. Not in the rotation.
 - `assets/`: the local MAKE font and its license. The live page needs no external CDN.
 - `docs/slide-inventory.md`: the complete active message list.
 - `docs/festival-campaign.md`: schedule, verification, and rollback instructions.
@@ -35,7 +35,7 @@ The old `.claude/skills/update-sign.md` describes that legacy engine. Do not reg
 2. Open `http://localhost:8789/` in a 768 x 192 browser viewport.
 3. Run `node --test tests/*.test.cjs` for the schedule and brightness checks.
 4. Use the browser checks in `docs/festival-campaign.md` for every message and layout.
-5. Run `node tests/truck-browser.cjs` for truck layout, rotation, reload, and dimming checks.
+5. Run `node tests/rotation-browser.cjs` to check that every slot is MAKE, plus reload and dimming.
 
 Keep campaign transitions as cuts. Crossfades at campaign boundaries change the allocated screen time.
 Preserve the selected artwork, message wording, shuffle, and Pacific schedule unless Jeff requests a change.

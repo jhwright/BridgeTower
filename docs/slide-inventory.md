@@ -1,6 +1,7 @@
 # Active slide inventory
 
-There are 52 messages: 50 MAKE messages, one scheduled festival message, and one truck offer.
+There are 50 messages. All of them are MAKE messages.
+The festival message and the truck offer were removed on November 10, 2026.
 MAKE messages shuffle and use eight layouts. Their wording is unchanged.
 The numbers identify messages, not a fixed playback order.
 
@@ -56,17 +57,13 @@ The numbers identify messages, not a fixed playback order.
 | 48 | MAKE IT LOUD |
 | 49 | MAKE IT RHYME |
 | 50 | MAKE IT MATTER |
-| 51 | SF LEONARD COHEN FESTIVAL - NOV 5–8 |
-| 52 | Free 18' E-Truck with Storage Rental |
 
-The festival uses PDF option #3, Date block, with 33% / 10% Pacific airtime.
-See [the campaign instructions](festival-campaign.md) and [issue #2](https://github.com/jhwright/BridgeTower/issues/2).
+## Removed on November 10, 2026
 
-The truck offer uses two large lines: `FREE 18' E-TRUCK` and `WITH STORAGE RENTAL`.
-It occupies the first available slot, then every tenth available slot, in each aligned ten-minute block.
-The festival's reserved slots are excluded from this count. Each slot lasts six seconds.
-This gives seven truck slots per block during festival peak hours, nine off-peak, and ten after the festival expires.
-The truck offer runs until removed. It uses the same software brightness settings as the other slides.
+- `SF LEONARD COHEN FESTIVAL - NOV 5–8`: the festival ended on November 9, 2026. Its artwork file stays in `slides/` but no slot uses it.
+- `Free 18' E-Truck with Storage Rental`: Jeff asked to take it off the sign.
+
+Every six-second slot now shows a MAKE message.
 
 ## Inactive files
 

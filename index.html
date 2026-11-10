@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 <title>Tower Sign — MAKE</title>
-<link rel="preload" as="image" href="slides/cohen-festival-date-block-768x192.png">
 <style>
   @font-face {
     font-family: 'Plus Jakarta Sans';
@@ -210,58 +209,6 @@ let currentSlide = null;
 let renderedSlot = null;
 let stepTimer = null;
 
-// Exact PDF option #3. Stretch to the live widget viewport, just like MAKE.
-function festivalSlide() {
-  const el = document.createElement('div');
-  el.className = 'slide campaign';
-  el.dataset.content = 'festival';
-  const img = document.createElement('img');
-  img.src = BridgeCampaign.config.artwork;
-  img.alt = 'SF Leonard Cohen Festival — November 5–8';
-  // Keep the message visible even if an asset request fails on the controller.
-  img.onerror = () => {
-    img.remove();
-    el.innerHTML = `<div style="width:100%;height:100%;background:#000;color:#fff;font-family:Arial,Helvetica,sans-serif;font-weight:900;white-space:nowrap;position:relative;">
-      <div style="position:absolute;left:2.6%;top:7%;font-size:${W * 0.077}px;letter-spacing:-.028em;line-height:1;">SF LEONARD COHEN</div>
-      <div style="position:absolute;left:0;right:0;top:50%;bottom:0;display:flex;align-items:center;">
-        <div style="width:58%;padding-left:2.6%;font-size:${W * 0.093}px;line-height:1;letter-spacing:-.03em;color:#E9A825;">FESTIVAL</div>
-        <div style="width:42%;height:100%;display:flex;align-items:center;justify-content:center;background:#E9A825;color:#000;font-size:${W * 0.0685}px;letter-spacing:-.04em;">NOV 5–8</div>
-      </div></div>`;
-  };
-  el.appendChild(img);
-  return el;
-}
-
-// Two large lines for the 4:1 panel and freeway viewing distance.
-function truckSlide() {
-  const el = document.createElement('div');
-  el.className = 'slide';
-  el.dataset.content = 'truck';
-  el.setAttribute('aria-label', "Free 18' E-Truck with Storage Rental");
-  Object.assign(el.style, {
-    background: C.black,
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: `${H * 0.08}px ${W * 0.025}px`,
-    gap: `${H * 0.06}px`
-  });
-  const lines = [
-    ["FREE 18' E-TRUCK", C.marigold, H * 0.44],
-    ['WITH STORAGE RENTAL', C.white, H * 0.29]
-  ];
-  lines.forEach(([text, color, maxH]) => {
-    const line = document.createElement('div');
-    line.className = 't';
-    line.dataset.fitText = 'truck';
-    line.textContent = text;
-    line.style.color = color;
-    line.style.fontSize = fitOneLine(text, W * 0.95, maxH) + 'px';
-    el.appendChild(line);
-  });
-  return el;
-}
-
 function nextWord() {
   if (wordIdx >= wordQueue.length) {
     // Reshuffle, avoiding an immediate repeat at the seam
@@ -283,33 +230,23 @@ function step(force = false) {
   }
   renderedSlot = state.absoluteSlot;
   W = window.innerWidth; H = window.innerHeight;
-  // Reserve festival slots first. Count only the available slots for the truck.
-  // Wall-clock placement survives reloads and resize without advancing a counter.
-  const ordinarySlot = state.slot - Math.floor(state.slot * state.percent / 100);
-  let el;
-  if (state.showCampaign) {
-    el = festivalSlide();
-  } else if (ordinarySlot % 10 === 0) {
-    el = truckSlide();
-  } else {
-    const word = nextWord();
-    const layout = LAYOUTS[layoutIdx % LAYOUTS.length];
-    const pair = PAIRS[pairIdx % PAIRS.length];
-    layoutIdx++;
-    pairIdx += 3;
-    const jitter = ((pairIdx * 7 + layoutIdx) % 7) - 3;
-    el = layout(word, pair);
-    el.dataset.content = 'make';
-    el.style.transform = `translateY(${jitter}px)`;
-  }
+  // Every slot is a MAKE message. The truck offer and the festival were
+  // removed on November 10, 2026. Slots stay six seconds, anchored to wall time.
+  const word = nextWord();
+  const layout = LAYOUTS[layoutIdx % LAYOUTS.length];
+  const pair = PAIRS[pairIdx % PAIRS.length];
+  layoutIdx++;
+  pairIdx += 3;
+  const jitter = ((pairIdx * 7 + layoutIdx) % 7) - 3;
+  const el = layout(word, pair);
+  el.dataset.content = 'make';
+  el.style.transform = `translateY(${jitter}px)`;
   sign.appendChild(el);
   const previous = currentSlide;
   currentSlide = el;
-  // Campaign boundaries are cuts, so transitions never consume campaign time.
-  if (!previous || state.showCampaign || previous.dataset.content === 'festival') {
+  if (!previous) {
     el.style.transition = 'none';
     el.classList.add('on');
-    if (previous) previous.remove();
   } else {
     requestAnimationFrame(() => {
       if (currentSlide !== el) return;

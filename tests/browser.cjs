@@ -12,18 +12,16 @@ fs.mkdirSync(out,{recursive:true});
   await page.clock.pauseAt(new Date('2026-10-08T16:00:19-07:00'));
   await page.goto(process.env.BRIDGE_TEST_URL || 'http://127.0.0.1:8789/');
   await page.waitForSelector('.slide.on');
-  await page.waitForFunction(()=>document.querySelector('img')?.complete);
-  assert.equal(await page.evaluate(()=>towerSignStatus.percent),33);
-  assert.equal(await page.locator('.slide.on').getAttribute('data-content'),'festival');
-  await page.screenshot({path:out+'/festival.png'});
+  // The festival time that used to show the festival now shows MAKE only.
+  assert.equal(await page.locator('.slide.on').getAttribute('data-content'),'make');
   await page.reload();
   await page.waitForSelector('.slide.on');
-  assert.equal(await page.locator('.slide.on').getAttribute('data-content'),'festival');
-  await page.clock.runFor(4999);
-  assert.equal(await page.locator('.slide.on').getAttribute('data-content'),'festival');
-  await page.clock.runFor(1);
   assert.equal(await page.locator('.slide.on').getAttribute('data-content'),'make');
+  await page.clock.runFor(4999);
+  assert.equal(await page.locator('.slide.on').getAttribute('data-content'),'make');
+  await page.clock.runFor(1);
   assert.equal(await page.locator('[data-content="festival"]').count(),0);
+  assert.equal(await page.locator('[data-content="truck"]').count(),0);
   await page.clock.runFor(650);
 
   // Stop timers so all generated layouts can be inspected independently.
